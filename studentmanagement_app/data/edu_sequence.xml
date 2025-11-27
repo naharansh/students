@@ -1,0 +1,9 @@
+<odoo>
+    <record id="seq_edu_student_code" model="ir.sequence">
+        <field name="name">Student Code</field>
+        <field name="code">student.model.code</field>
+        <field name="prefix">STU-%(year)s-</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>

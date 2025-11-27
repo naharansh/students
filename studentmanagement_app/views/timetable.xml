@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_class_timetable_form" model="ir.ui.view">
+        <field name="name">edu.class.timetable.form</field>
+        <field name="model">edu.class.timetable</field>
+        <field name="arch" type="xml">
+            <form string="Class Timetable">
+                <header>
+                    <button name="action_generate_week"
+                            type="object"
+                            string="Generate Week"
+                            class="oe_highlight"/>
+                    <button name="action_generate_daily_classes"
+                            type="object"
+                            string="Sync Daily Classes"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="class_id"/>
+                        <field name="week_start"/>
+                        <field name="week_end" readonly="1"/>
+                    </group>
+                    <!-- FIX BEGINS: wrap page inside notebook -->
+                    <notebook>
+                        <page string="Timetable Sessions">
+                            <field name="timetable_line_ids">
+                                <list editable="bottom">
+                                    <!-- <field name="day_name"/>
+                                    <field name="date_of_day" readonly="1"/> -->
+                                </list>
+                                <form>
+                                    <sheet>
+                                        <group>
+                                            <!-- <field name="day_name"/>
+                                            <field name="date_of_day" readonly="1"/> -->
+                                        </group>
+                                        <notebook>
+                                            <page string="Sessions">
+                                                <field name="session_ids">
+                                                    <list editable="bottom">
+                                                        <!-- <field name="subject_id"/> -->
+                                                        <!-- <field name="teacher_id"/> -->
+                                                        <!-- <field name="start_time"/>
+                                                        <field name="end_time"/>
+                                                        <field name="room"/> -->
+                                                    </list>
+                                                </field>
+                                            </page>
+                                        </notebook>
+                                    </sheet>
+                                </form>
+                            </field>
+                        </page>
+                    </notebook>
+                    <!-- FIX ENDS -->
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_class_timetable" model="ir.actions.act_window">
+        <field name="name">Class Timetable</field>
+        <field name="res_model">edu.class.timetable</field>
+        <field name="view_mode">list,form</field>
+        <field name="help">Create and manage weekly class timetables.</field>
+    </record>
+</odoo>

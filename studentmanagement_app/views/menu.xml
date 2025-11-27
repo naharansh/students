@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Root menu -->
+    <menuitem id="menu_edu_root" name="Education Management"/>
+
+    <!-- Classes -->
+    <menuitem id="menu_batch_class" parent="menu_edu_root"
+              action="action_batch_class" name="Classes / Batches"/>
+
+    <!-- Students -->
+    <menuitem id="menu_students" parent="menu_edu_root"
+              action="action_students" name="Students"/>
+
+    <!-- Timetable -->
+<menuitem id="menu_timetable_root" parent="menu_edu_root" action="action_class_timetable" name="Timetable"/>
+</odoo>

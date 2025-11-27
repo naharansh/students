@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_batch_class,batch.class,model_batch_class,,1,1,1,1
+access_student_model,student.model,model_student_model,,1,1,1,1
+access_edu_class_timetable,edu.class.timetable,model_edu_class_timetable,,1,1,1,1
+access_edu_class_daily,edu.class.daily,model_edu_class_daily,,1,1,1,1
+access_edu_class_timetable_line,edu.class.timetable.line,model_edu_class_timetable_line,,1,1,1,1
+access_edu.class_timetable_session,edu.class.timetable.session,model_edu_class_timetable_session,,1,1,1,1
