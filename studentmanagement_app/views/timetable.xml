@@ -4,15 +4,14 @@
         <field name="name">edu.class.timetable.form</field>
         <field name="model">edu.class.timetable</field>
         <field name="arch" type="xml">
-            <form string="Class Timetable">
+            <form string="Weekly Timetable">
                 <header>
-                    <button name="action_generate_week"
-                            type="object"
-                            string="Generate Week"
-                            class="oe_highlight"/>
-                    <button name="action_generate_daily_classes"
-                            type="object"
-                            string="Sync Daily Classes"/>
+                    <button name="action_generate_week" type="object" class="oe_highlight"
+                            string="Generate Days"/>
+                    <button name="action_generate_daily_classes" type="object"
+                            string="Generate Daily Classes" class="oe_highlight" />
+                 
+
                 </header>
                 <sheet>
                     <group>
@@ -20,47 +19,135 @@
                         <field name="week_start"/>
                         <field name="week_end" readonly="1"/>
                     </group>
-                    <!-- FIX BEGINS: wrap page inside notebook -->
                     <notebook>
-                        <page string="Timetable Sessions">
+                        <!-- Timetable Lines -->
+                        <page string="Day Lines">
                             <field name="timetable_line_ids">
                                 <list editable="bottom">
-                                    <!-- <field name="day_name"/>
-                                    <field name="date_of_day" readonly="1"/> -->
+                                    <field name="day_name"/>
+                                    <field name="date_of_day" readonly="1"/>
                                 </list>
-                                <form>
-                                    <sheet>
-                                        <group>
-                                            <!-- <field name="day_name"/>
-                                            <field name="date_of_day" readonly="1"/> -->
-                                        </group>
-                                        <notebook>
-                                            <page string="Sessions">
-                                                <field name="session_ids">
-                                                    <list editable="bottom">
-                                                        <!-- <field name="subject_id"/> -->
-                                                        <!-- <field name="teacher_id"/> -->
-                                                        <!-- <field name="start_time"/>
-                                                        <field name="end_time"/>
-                                                        <field name="room"/> -->
-                                                    </list>
-                                                </field>
-                                            </page>
-                                        </notebook>
-                                    </sheet>
-                                </form>
+                            </field>
+                        </page>
+                        <!-- Daily Classes -->
+                        <page string="Daily Classes (Auto Generated)">
+                            <field name="daily_class_ids">
+                                <list>
+                                    <field name="date"/>
+                                    <field name="teacher_id"/>
+                                    <field name="subject_id"/>
+                                    <field name="start_time"/>
+                                    <field name="end_time"/>
+                                    <field name="room"/>
+                                </list>
                             </field>
                         </page>
                     </notebook>
-                    <!-- FIX ENDS -->
                 </sheet>
             </form>
         </field>
     </record>
+    <record id="view_class_timetable_tree" model="ir.ui.view">
+        <field name="name">edu.class.timetable.list</field>
+        <field name="model">edu.class.timetable</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="class_id"/>
+                <field name="week_start"/>
+                <field name="week_end"/>
+            </list>
+        </field>
+    </record>
     <record id="action_class_timetable" model="ir.actions.act_window">
-        <field name="name">Class Timetable</field>
+        <field name="name">Weekly Timetable</field>
         <field name="res_model">edu.class.timetable</field>
         <field name="view_mode">list,form</field>
-        <field name="help">Create and manage weekly class timetables.</field>
     </record>
+    <menuitem id="menu_school_root" name="School" sequence="1"/>
+    <menuitem id="menu_timetable_root" parent="menu_school_root" name="Timetable" sequence="3"/>
+    <menuitem id="menu_class_timetable" parent="menu_timetable_root"
+              name="Weekly Timetable" action="action_class_timetable"/>
+    <record id="view_timetable_line_form" model="ir.ui.view">
+        <field name="name">edu.class.timetable.line.form</field>
+        <field name="model">edu.class.timetable.line</field>
+        <field name="arch" type="xml">
+            <form string="Timetable Day Line">
+                <sheet>
+                    <group>
+                        <field name="timetable_id"/>
+                        <field name="day_name"/>
+                        <field name="date_of_day" readonly="1"/>
+                    </group>
+                    <group string="Sessions">
+                        <field name="session_ids">
+                            <list editable="bottom">
+                                <field name="teacher_id"/>
+                                <field name="subject_id"/>
+                                <field name="start_time"/>
+                                <field name="end_time"/>
+                                <field name="room"/>
+                            </list>
+                        </field>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="view_timetable_line_tree" model="ir.ui.view">
+        <field name="name">edu.class.timetable.line.list</field>
+        <field name="model">edu.class.timetable.line</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="timetable_id"/>
+                <field name="day_name"/>
+                <field name="date_of_day"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_daily_class_form" model="ir.ui.view">
+        <field name="name">edu.class.daily.form</field>
+        <field name="model">edu.class.daily</field>
+        <field name="arch" type="xml">
+            <form string="Daily Class">
+                <sheet>
+                    <group>
+                        <field name="timetable_id"/>
+                        <field name="class_id"/>
+                        <field name="date"/>
+                    </group>
+                    <group>
+                        <field name="teacher_id"/>
+                        <field name="subject_id"/>
+                    </group>
+                    <group>
+                        <field name="start_time"/>
+                        <field name="end_time"/>
+                        <field name="duration" readonly="1"/>
+                        <field name="room"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="view_daily_class_tree" model="ir.ui.view">
+        <field name="name">edu.class.daily.list</field>
+        <field name="model">edu.class.daily</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="date"/>
+                <field name="teacher_id"/>
+                <field name="subject_id"/>
+                <field name="start_time"/>
+                <field name="end_time"/>
+                <field name="room"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_daily_class" model="ir.actions.act_window">
+        <field name="name">Daily Class Schedule</field>
+        <field name="res_model">edu.class.daily</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <menuitem id="menu_daily_classes" parent="menu_timetable_root"
+              name="Daily Class Schedule" action="action_daily_class"/>
 </odoo>

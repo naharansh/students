@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+<record id="seq_edu_subject_code" model="ir.sequence">
+    <field name="name">Subject Code</field>
+    <field name="code">edu.subject.code</field>
+    <field name="prefix">SUB-%(year)s-</field>
+    <field name="padding">4</field>
+    <field name="company_id" eval="False"/>
+</record>
+
+
+</odoo>

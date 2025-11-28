@@ -11,6 +11,8 @@
             <field name="name"/>
             <field name="code"/>
             <field name="capacity"/>
+            <field name="start_date"/>
+            <field name="end_date"/>
           </group>
           <group string="Students">
             <field name="student_ids" widget="many2many_tags">
@@ -38,7 +40,6 @@
       </form>
     </field>
   </record>
-
   <!-- list Views -->
   <record id="view_batch_class_tree" model="ir.ui.view">
     <field name="name">batch.class.list.main</field>
@@ -52,7 +53,6 @@
       </list>
     </field>
   </record>
-
   <record id="view_class_tree" model="ir.ui.view">
     <field name="name">batch.class.list.alt</field>
     <field name="model">batch.class</field>
@@ -64,14 +64,12 @@
       </list>
     </field>
   </record>
-
   <!-- Action -->
   <record id="action_batch_class" model="ir.actions.act_window">
     <field name="name">Classes</field>
     <field name="res_model">batch.class</field>
     <field name="view_mode">list,form</field>
   </record>
-
   <!-- Menus -->
   <menuitem id="menu_batch_class_root" name="Education Management"/>
   <menuitem id="menu_batch_class" parent="menu_batch_class_root"

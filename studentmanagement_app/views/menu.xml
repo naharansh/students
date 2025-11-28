@@ -2,15 +2,24 @@
 <odoo>
     <!-- Root menu -->
     <menuitem id="menu_edu_root" name="Education Management"/>
-
     <!-- Classes -->
     <menuitem id="menu_batch_class" parent="menu_edu_root"
               action="action_batch_class" name="Classes / Batches"/>
-
     <!-- Students -->
     <menuitem id="menu_students" parent="menu_edu_root"
               action="action_students" name="Students"/>
-
     <!-- Timetable -->
-<menuitem id="menu_timetable_root" parent="menu_edu_root" action="action_class_timetable" name="Timetable"/>
+    <menuitem id="menu_timetable_root" parent="menu_edu_root" action="action_class_timetable" name="Timetable"/>
+    <menuitem id="menu_teacher" name="Teachers" parent="menu_studentmanagement_root" action="action_teacher"/>
+    <menuitem id="menu_daily_class_root"
+              parent="menu_edu_root"
+              name="Class Records"/>
+    <menuitem id="menu_daily_record"
+              name="Daily Records"
+              parent="menu_studentmanagement_root"
+              action="action_daily_record"/>
+    <menuitem id="menu_monthly_attendance"
+              parent="menu_edu_root"
+              name="Monthly Attendance"
+              action="action_monthly_attendance"/>
 </odoo>

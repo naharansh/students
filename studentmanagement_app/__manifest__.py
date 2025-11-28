@@ -16,14 +16,19 @@
         # Sequences FIRST
         'data/edu_sequence.xml',
         'data/edu_classcodesequence.xml',
-
-        # Menus BEFORE views that reference them
+        'data/edu_teachersequence.xml',
+         'data/edu_subjectsequence.xml',   
+         
 
 
         # Views NEXT
+
         'views/student.xml',
         'views/classes.xml',
         'views/timetable.xml',
+        'views/teacher.xml',
+        'views/daily_record.xml',
+        'views/attendence.xml',
         'views/menu.xml',
     ],
     'demo': ['demo/demo.xml'],
