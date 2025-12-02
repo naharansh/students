@@ -1,5 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
-
+    <data noupdate="0">
+        <!-- Report Action -->
+        <record id="monthly_attendance_pdf" model="ir.actions.report">
+            <field name="name">Monthly Attendance PDF</field>
+            <field name="model">edu.attendence</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">studentmanagement_app.monthly_attendance_template</field>
+            <field name="report_file">studentmanagement_app.monthly_attendance_template</field>
+            <field name="print_report_name">
+    ('Monthly_Attendance_' + (object.month or '') + '_' + str(object.year or ''))
+</field>
+            <field name="binding_model_id" ref="model_edu_attendence"/>
+            <field name="binding_type">report</field>
+        </record>
+        <!-- QWeb Template -->
+        <template id="monthly_attendance_template">
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                    <!-- Iterate over docs -->
+                    <t t-foreach="docs" t-as="doc">
+                        <div class="page">
+                            <h2 class="text-center">Monthly Attendance Report</h2>
+                            <p>
+                                <strong>Class:</strong>
+                                <span t-esc="doc.class_id.name"/>
+                                <br/>
+                                <strong>Month/Year:</strong>
+                                <span t-esc="doc.month"/> /
+                                <span t-esc="doc.year"/>
+                            </p>
+                            <table class="table table-bordered table-sm">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Student Name</th>
+                                        <th class="text-center">Present Days</th>
+                                        <th class="text-center">Absent Days</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="doc.line_ids" t-as="line">
+                                        <tr>
+                                            <td>
+                                                <span t-esc="line.student_id.name"/>
+                                            </td>
+                                            <td class="text-center">
+                                                <span t-esc="line.present_days"/>
+                                            </td>
+                                            <td class="text-center">
+                                                <span t-esc="line.absent_days"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <t t-if="not doc.line_ids">
+                                        <tr>
+                                            <td colspan="3" class="text-center text-muted">No attendance records</td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
     </data>
 </odoo>

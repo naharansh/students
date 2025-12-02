@@ -15,33 +15,32 @@
             <field name="end_date"/>
           </group>
           <group string="Students">
-            <field name="student_ids" widget="many2many_tags">
-              <list>
-                <field name="name"/>
-              </list>
-            </field>
+            <field name="student_ids" widget="many2many_tags"/>
           </group>
           <group string="Total Students" colspan="4">
             <field name="student_count" readonly="1"/>
           </group>
-          <notebook>
-            <page string="Timetable">
-              <field name="timetable_ids">
-                <list editable="bottom">
-                  <!-- Add timetable line fields here if they exist -->
-                  <!-- Example: <field name="day_of_week"/> -->
-                  <!-- Example: <field name="subject"/> -->
-                  <!-- Example: <field name="teacher_id"/> -->
-                </list>
-              </field>
-            </page>
-          </notebook>
+      
+            <notebook>
+              <page string="Class Timetable">
+                <field name="timetable_ids" readonly="1" nolabel="1">
+                  <list string="Timetable" create="false" delete="false">
+                    <field name="class_id"/>
+                    <field name="week_start"/>
+                    <field name="week_end"/>
+                          <field name="daily_class_ids"/>
+                  </list>
+                </field>
+              </page>
+            </notebook>
+          
         </sheet>
       </form>
     </field>
   </record>
-  <!-- list Views -->
-  <record id="view_batch_class_tree" model="ir.ui.view">
+
+  <!-- List Views -->
+  <record id="view_batch_class_list" model="ir.ui.view">
     <field name="name">batch.class.list.main</field>
     <field name="model">batch.class</field>
     <field name="arch" type="xml">
@@ -53,7 +52,7 @@
       </list>
     </field>
   </record>
-  <record id="view_class_tree" model="ir.ui.view">
+  <record id="view_class_list" model="ir.ui.view">
     <field name="name">batch.class.list.alt</field>
     <field name="model">batch.class</field>
     <field name="arch" type="xml">
@@ -70,8 +69,4 @@
     <field name="res_model">batch.class</field>
     <field name="view_mode">list,form</field>
   </record>
-  <!-- Menus -->
-  <menuitem id="menu_batch_class_root" name="Education Management"/>
-  <menuitem id="menu_batch_class" parent="menu_batch_class_root"
-            action="action_batch_class" name="Classes / Batches"/>
 </odoo>

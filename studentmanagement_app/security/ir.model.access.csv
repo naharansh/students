@@ -6,7 +6,7 @@ access_student_model,student.model,model_student_model,,1,1,1,1
 access_edu_class_timetable,edu.class.timetable,model_edu_class_timetable,,1,1,1,1
 access_edu_class_timetable_line,edu.class.timetable.line,model_edu_class_timetable_line,,1,1,1,1
 access_edu_class_timetable_session,edu.class.timetable.session,model_edu_class_timetable_session,,1,1,1,1
-
+access_edu_class_daily,edu.class.daily,model_edu_class_daily,,1,1,1,1
 access_edu_teacher,edu.teacher,model_edu_teacher,,1,1,1,1
 access_edu_subject,edu.subject,model_edu_subject,,1,1,1,1
 

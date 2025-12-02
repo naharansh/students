@@ -1,14 +1,25 @@
 from odoo import models, fields, api
-from odoo.exceptions import ValidationError,UserError
+from odoo.exceptions import ValidationError, UserError
 from datetime import timedelta
+
 class ClassTimetable(models.Model):
     _name = "edu.class.timetable"
     _description = "Class Weekly Timetable"
     _rec_name = "class_id"
 
     class_id = fields.Many2one("batch.class", string="Class", required=True)
-    week_start = fields.Date(string="Week Start", required=True)
-    week_end = fields.Date(string="Week End", compute="_compute_end_date", store=True)
+
+    week_start = fields.Date(
+        string="Week Start",
+        related="class_id.start_date",
+        readonly=True
+    )
+
+    week_end = fields.Date(
+        string="Week End",
+        compute="_compute_end_date",
+        store=True
+    )
 
     timetable_line_ids = fields.One2many(
         "edu.class.timetable.line",
@@ -23,15 +34,35 @@ class ClassTimetable(models.Model):
         string="Daily Class Auto Generated",
         copy=True
     )
+    def action_add_daily_subjects(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Daily Classes",
+            "res_model": "edu.class.daily",
+            "view_mode": "form",
+            "domain": [("timetable_id", "=", self.id)],
+            "context": {
+                "default_timetable_id": self.id,
+                "default_class_id": self.class_id.id,
+            },
+        }
+    
 
+    # Compute Saturday automatically
     @api.depends("week_start")
     def _compute_end_date(self):
         for rec in self:
-            rec.week_end = rec.week_start + timedelta(days=5) if rec.week_start else False
+            rec.week_end = (
+                rec.week_start + timedelta(days=5)
+                if rec.week_start else False
+            )
 
+    # Auto-create 6 days (Mon-Sat)
     def action_generate_week(self):
         days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
         self.ensure_one()
+
         self.timetable_line_ids.unlink()
 
         for day in days:
@@ -40,61 +71,47 @@ class ClassTimetable(models.Model):
                 "day_name": day,
             })
 
-    # def action_generate_daily_classes(self):
-    #     self.ensure_one()
- 
-    #     self.daily_class_ids.unlink()
-    #     debug_lines = []
-    #     for line in self.timetable_line_ids:
-    #         # collect ids and brief details
-    #         s_ids = line.session_ids.ids
-    #         debug_lines.append(f"Line {line.day_name} ({line.date_of_day}) -> sessions: {s_ids}")
-    #         for session in line.session_ids:
-    #             # create daily record as normal
-    #             self.env["edu.class.daily"].create({
-    #                 "timetable_id": self.id,
-    #                 "class_id": self.class_id.id,
-    #                 "date": line.date_of_day,
-    #                 "teacher_id": session.teacher_id.id or False,
-    #                 "subject_id": session.subject_id.id if session.subject_id else False,
-    #                 "start_time": session.start_time,
-    #                 "end_time": session.end_time,
-    #                 "room": session.room,
-    #             })
+    # ------------------------------------------------------------
+    # AUTO-GENERATE DAILY CLASSES
+    # ------------------------------------------------------------
     def action_generate_daily_classes(self):
         self.ensure_one()
-       # Delete existing daily classes for this timetable
-        self.daily_class_ids.unlink()
-        daily_class_vals = []
-        for line in self.timetable_line_ids:
-             if not line.date_of_day:
-                 continue  # skip if date not computed
- 
-             for session in line.session_ids:
-                 if not session.start_time or not session.end_time:
-                     continue  # skip invalid sessions
 
-                # Critical: validate time order BEFORE creating
-                 if session.start_time >= session.end_time:
+        # Clear old daily classes
+        self.daily_class_ids.unlink()
+        vals_list = []
+
+        for line in self.timetable_line_ids:
+
+            if not line.date_of_day:
+                continue
+
+            for session in line.session_ids:
+
+                # Skip incomplete
+                if not session.start_time or not session.end_time:
+                    continue
+
+                # Time validation
+                if session.start_time >= session.end_time:
                     raise ValidationError(
-                        f"Invalid time in timetable: {session.start_time} → {session.end_time} "
-                        f"on {line.day_name}. Start time must be before end time."
+                        f"Invalid session time on {line.day_name}: "
+                        f"{session.start_time} → {session.end_time}"
                     )
 
-             daily_class_vals.append({
+                vals_list.append({
                     "timetable_id": self.id,
                     "class_id": self.class_id.id,
                     "date": line.date_of_day,
-                    "teacher_id": session.teacher_id.id or False,
-                    "subject_id": session.subject_id.id or False,
+                    "teacher_id": session.teacher_id.id,
+                    "subject_id": session.subject_id.id,
                     "start_time": session.start_time,
                     "end_time": session.end_time,
-                    "room": session.room or "",
-            })
+                    "room": session.room,
+                })
 
-    # Bulk create outside loop – faster and better error reporting
-        if daily_class_vals:
-            self.env["edu.class.daily"].create(daily_class_vals)
+        if vals_list:
+            self.env["edu.class.daily"].create(vals_list)
         else:
             raise UserError("No valid sessions found to generate daily classes.")
 
@@ -105,7 +122,12 @@ class DailyClass(models.Model):
 
     timetable_id = fields.Many2one("edu.class.timetable", string="Timetable", ondelete="cascade")
     class_id = fields.Many2one("batch.class", string="Class", required=True)
-    date = fields.Date(string="Date", required=True)
+    date = fields.Date(
+        string="Date",
+        required=True,
+        default=fields.Date.today
+    )
+
     teacher_id = fields.Many2one("edu.teacher", string="Teacher")
     subject_id = fields.Many2one("edu.subject", string="Subject")
     start_time = fields.Float(string="Start Time", required=True)
@@ -114,6 +136,7 @@ class DailyClass(models.Model):
 
     duration = fields.Float(string="Duration (hrs)", compute="_compute_duration", store=True)
     week_range = fields.Char(string="Week Range", compute="_compute_week_range")
+
 
     @api.depends("timetable_id.week_start", "timetable_id.week_end")
     def _compute_week_range(self):
@@ -225,3 +248,4 @@ class TimetableSession(models.Model):
                     rec.calendar_event_id = event.id
 
 
+    

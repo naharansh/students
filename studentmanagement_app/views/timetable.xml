@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- FORM VIEW -->
     <record id="view_class_timetable_form" model="ir.ui.view">
         <field name="name">edu.class.timetable.form</field>
         <field name="model">edu.class.timetable</field>
@@ -8,10 +9,12 @@
                 <header>
                     <button name="action_generate_week" type="object" class="oe_highlight"
                             string="Generate Days"/>
-                    <button name="action_generate_daily_classes" type="object"
-                            string="Generate Daily Classes" class="oe_highlight" />
-                 
-
+                    <button name="action_add_daily_subjects"
+            type="object"
+            string="Add Daily Subjects"
+            class="oe_highlight"
+            icon="fa-plus"/>
+                  
                 </header>
                 <sheet>
                     <group>
@@ -20,7 +23,6 @@
                         <field name="week_end" readonly="1"/>
                     </group>
                     <notebook>
-                        <!-- Timetable Lines -->
                         <page string="Day Lines">
                             <field name="timetable_line_ids">
                                 <list editable="bottom">
@@ -29,7 +31,6 @@
                                 </list>
                             </field>
                         </page>
-                        <!-- Daily Classes -->
                         <page string="Daily Classes (Auto Generated)">
                             <field name="daily_class_ids">
                                 <list>
@@ -47,7 +48,8 @@
             </form>
         </field>
     </record>
-    <record id="view_class_timetable_tree" model="ir.ui.view">
+    <!-- list VIEW -->
+    <record id="view_class_timetable_list" model="ir.ui.view">
         <field name="name">edu.class.timetable.list</field>
         <field name="model">edu.class.timetable</field>
         <field name="arch" type="xml">
@@ -58,15 +60,13 @@
             </list>
         </field>
     </record>
+    <!-- CORRECT ACTION (ONLY ONE!) -->
     <record id="action_class_timetable" model="ir.actions.act_window">
         <field name="name">Weekly Timetable</field>
         <field name="res_model">edu.class.timetable</field>
         <field name="view_mode">list,form</field>
     </record>
-    <menuitem id="menu_school_root" name="School" sequence="1"/>
-    <menuitem id="menu_timetable_root" parent="menu_school_root" name="Timetable" sequence="3"/>
-    <menuitem id="menu_class_timetable" parent="menu_timetable_root"
-              name="Weekly Timetable" action="action_class_timetable"/>
+    <!-- TIMETABLE LINE FORM -->
     <record id="view_timetable_line_form" model="ir.ui.view">
         <field name="name">edu.class.timetable.line.form</field>
         <field name="model">edu.class.timetable.line</field>
@@ -93,7 +93,8 @@
             </form>
         </field>
     </record>
-    <record id="view_timetable_line_tree" model="ir.ui.view">
+    <!-- TIMETABLE LINE list -->
+    <record id="view_timetable_line_list" model="ir.ui.view">
         <field name="name">edu.class.timetable.line.list</field>
         <field name="model">edu.class.timetable.line</field>
         <field name="arch" type="xml">
@@ -104,6 +105,7 @@
             </list>
         </field>
     </record>
+    <!-- DAILY CLASS FORM -->
     <record id="view_daily_class_form" model="ir.ui.view">
         <field name="name">edu.class.daily.form</field>
         <field name="model">edu.class.daily</field>
@@ -129,7 +131,8 @@
             </form>
         </field>
     </record>
-    <record id="view_daily_class_tree" model="ir.ui.view">
+    <!-- DAILY CLASS list -->
+    <record id="view_daily_class_list" model="ir.ui.view">
         <field name="name">edu.class.daily.list</field>
         <field name="model">edu.class.daily</field>
         <field name="arch" type="xml">
@@ -143,11 +146,13 @@
             </list>
         </field>
     </record>
-    <record id="action_daily_class" model="ir.actions.act_window">
-        <field name="name">Daily Class Schedule</field>
+    <record id="action_daily_class_create" model="ir.actions.act_window">
+        <field name="name">Add Daily Class</field>
         <field name="res_model">edu.class.daily</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">form</field>
+        <!-- only form -->
+        <field name="target">new</field>
+        <!-- opens in a popup modal -->
+        <field name="context">{'default_timetable_id': active_id}</field>
     </record>
-    <menuitem id="menu_daily_classes" parent="menu_timetable_root"
-              name="Daily Class Schedule" action="action_daily_class"/>
 </odoo>

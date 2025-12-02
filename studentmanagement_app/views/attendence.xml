@@ -9,6 +9,8 @@
                 <header>
                     <button name="action_generate" type="object"
                             string="Generate Report" class="btn-primary"/>
+                    <button name="action_print_pdf" type="object"
+                            string="Print Report" class="btn-secondary"/>
                 </header>
                 <sheet>
                     <group>
@@ -31,7 +33,7 @@
     <record id="action_monthly_attendance" model="ir.actions.act_window">
         <field name="name">Monthly Attendance</field>
         <field name="res_model">edu.attendence</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">form</field>
     </record>
 
    

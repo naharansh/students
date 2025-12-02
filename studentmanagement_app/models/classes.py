@@ -1,7 +1,6 @@
 from odoo import models,fields,api
 from odoo.exceptions import ValidationError
-import logging
-_logger = logging.getLogger(__name__)
+from datetime import timedelta
 
 class ClassBatch(models.Model):
     _name='batch.class'
@@ -11,7 +10,7 @@ class ClassBatch(models.Model):
     code = fields.Char(string='Class Id', readonly=True)
     teacher_id = fields.Many2one('edu.teacher', string="Class Teacher")
     start_date = fields.Date(string="Start Date")
-    end_date = fields.Date(string="End Date")
+    end_date = fields.Date(string="End Date" ,store=True, compute='_compute_end_date')
 
     student_count = fields.Integer(
         string="Number of Students",
@@ -39,6 +38,10 @@ class ClassBatch(models.Model):
             if vals.get('code', 'New') == 'New':
                 vals['code'] = self.env['ir.sequence'].next_by_code('batch.class.code') or 'New'
         return super().create(vals_list)
+    @api.depends("start_date")
+    def _compute_end_date(self):
+        for rec in self:
+            rec.end_date = rec.start_date + timedelta(days=5) if rec.start_date else False
 
     # Compute student count
     @api.depends('student_ids')
@@ -55,6 +58,6 @@ class ClassBatch(models.Model):
     @api.constrains('student_ids', 'capacity')
     def _check_student_capacity(self):
         for rec in self:
-            _logger.info("Checking capacity for class: %s", rec.name)
+
             if rec.capacity and len(rec.student_ids) > rec.capacity:
                 raise ValidationError("Number of students cannot exceed class capacity.")
