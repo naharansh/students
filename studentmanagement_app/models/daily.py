@@ -14,7 +14,6 @@ class DailyRecord(models.Model):
     state = fields.Selection([
         ('draft', 'Draft'),
         ('done', 'Done'),
-       
     ], default='draft', string="Status")
 
     student_line_ids = fields.One2many(
@@ -22,33 +21,24 @@ class DailyRecord(models.Model):
         'record_id',
         string="Student Records"
     )
-    student_id = fields.Many2one('student.model', string="Student", help="Used to filter attendance lines for this student")
+
     @api.onchange('class_id')
     def _onchange_class_id(self):
-        lines = []
         if self.class_id:
-         for student in self.class_id.student_ids:
-            lines.append((0, 0, {
-               'record_id': self.id,       
+            lines = [(0, 0, {
                 'student_id': student.id,
                 'status': 'present',
-           }))
-  # Clear existing lines and add new ones safely
-        self.student_line_ids = [(5, 0, 0)] + lines
+            }) for student in self.class_id.student_ids]
+            # Clear existing lines and add new ones
+            self.student_line_ids = [(5, 0, 0)] + lines
+        else:
+            self.student_line_ids = [(5, 0, 0)]
+
     def action_confirm(self):
         self.state = 'done'
 
     def action_reset(self):
         self.state = 'draft'
-    # @api.model
-    # def default_get(self, fields):
-    #     res = super().default_get(fields)
-    #     student = self.env['student.model'].search([('student_id', '=', self.env.student_id)], limit=1)
-    #     if student:
-    #          res['student_id'] = student.student_id
-    #     return res
-    
-   
 
 
 class DailyRecordLine(models.Model):
@@ -61,7 +51,7 @@ class DailyRecordLine(models.Model):
         required=True,
         ondelete='cascade'
     )
-    student_id = fields.Many2one('student.model', string="Student",)
+    student_id = fields.Many2one('student.model', string="Student")
     status = fields.Selection([
         ('present', 'Present'),
         ('absent', 'Absent')

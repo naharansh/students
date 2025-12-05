@@ -15,8 +15,8 @@
                         <field name="address"/>
                         <field name="class_id"/>
                         <field name="status"/>
-                        <field name="monthly_fee"/>
-                        <!-- <field name="outstanding_fee"/> -->
+                        <field name="fee_due_ids"/> 
+                       <field name="remaining_yearly_fee"/>
                     </group>
                 </sheet>
             </form>
@@ -31,8 +31,8 @@
                 <field name="student_id"/>
                 <field name="class_id"/>
                 <field name="status"/>
-                <field name="monthly_fee"/>
-                <!-- <field name="outstanding_fee"/> -->
+               <field name="fee_due_ids"/> 
+                <field name="remaining_yearly_fee"/> 
             </list>
         </field>
     </record>

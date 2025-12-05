@@ -79,7 +79,7 @@
                         <page string="Attendance">
                             <field name="student_line_ids">
                                 <list editable="bottom">
-                                    <field name="student_id" readonly="1"/>
+                                    <field name="student_id" />
                                     <field name="status"/>
                                     <field name="remarks"/>
                                 </list>

@@ -2,6 +2,10 @@ from odoo import models, fields, api
 from odoo.exceptions import ValidationError, UserError
 from datetime import timedelta
 
+
+# ---------------------------
+# CLASS TIMETABLE (WEEKLY)
+# ---------------------------
 class ClassTimetable(models.Model):
     _name = "edu.class.timetable"
     _description = "Class Weekly Timetable"
@@ -34,6 +38,34 @@ class ClassTimetable(models.Model):
         string="Daily Class Auto Generated",
         copy=True
     )
+
+    # ---------------------------
+    # Compute Saturday automatically
+    # ---------------------------
+    @api.depends("week_start")
+    def _compute_end_date(self):
+        for rec in self:
+            rec.week_end = (
+                rec.week_start + timedelta(days=5)
+                if rec.week_start else False
+            )
+
+    # ---------------------------
+    # Auto-create 6 days (Mon-Sat)
+    # ---------------------------
+    def action_generate_week(self):
+        days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+        self.ensure_one()
+        self.timetable_line_ids.unlink()
+        for day in days:
+            self.env["edu.class.timetable.line"].create({
+                "timetable_id": self.id,
+                "day_name": day,
+            })
+
+    # ---------------------------
+    # Open Daily Classes form
+    # ---------------------------
     def action_add_daily_subjects(self):
         self.ensure_one()
         return {
@@ -47,74 +79,35 @@ class ClassTimetable(models.Model):
                 "default_class_id": self.class_id.id,
             },
         }
-    
-
-    # Compute Saturday automatically
-    @api.depends("week_start")
-    def _compute_end_date(self):
+    def action_sync_daily_classes(self):
+        """Auto-sync all timetable sessions into daily classes."""
+        Daily = self.env["edu.class.daily"]
+        
         for rec in self:
-            rec.week_end = (
-                rec.week_start + timedelta(days=5)
-                if rec.week_start else False
-            )
+            # 1) Delete old daily classes for this timetable
+            rec.daily_class_ids.unlink()
 
-    # Auto-create 6 days (Mon-Sat)
-    def action_generate_week(self):
-        days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-        self.ensure_one()
+            # 2) Recreate daily classes from timetable sessions
+            daily_vals = []
 
-        self.timetable_line_ids.unlink()
+            for day in rec.timetable_line_ids:
+                for session in day.session_ids:
+                    daily_vals.append({
+                        "timetable_id": rec.id,
+                        "class_id": rec.class_id.id,
+                        "date": day.date_of_day,
+                        "teacher_id": session.teacher_id.id,
+                        "subject_id": session.subject_id.id,
+                        "start_time": session.start_time,
+                        "end_time": session.end_time,
+                        "room": session.room,
+                    })
 
-        for day in days:
-            self.env["edu.class.timetable.line"].create({
-                "timetable_id": self.id,
-                "day_name": day,
-            })
+            Daily.create(daily_vals)
 
-    # ------------------------------------------------------------
-    # AUTO-GENERATE DAILY CLASSES
-    # ------------------------------------------------------------
-    def action_generate_daily_classes(self):
-        self.ensure_one()
-
-        # Clear old daily classes
-        self.daily_class_ids.unlink()
-        vals_list = []
-
-        for line in self.timetable_line_ids:
-
-            if not line.date_of_day:
-                continue
-
-            for session in line.session_ids:
-
-                # Skip incomplete
-                if not session.start_time or not session.end_time:
-                    continue
-
-                # Time validation
-                if session.start_time >= session.end_time:
-                    raise ValidationError(
-                        f"Invalid session time on {line.day_name}: "
-                        f"{session.start_time} → {session.end_time}"
-                    )
-
-                vals_list.append({
-                    "timetable_id": self.id,
-                    "class_id": self.class_id.id,
-                    "date": line.date_of_day,
-                    "teacher_id": session.teacher_id.id,
-                    "subject_id": session.subject_id.id,
-                    "start_time": session.start_time,
-                    "end_time": session.end_time,
-                    "room": session.room,
-                })
-
-        if vals_list:
-            self.env["edu.class.daily"].create(vals_list)
-        else:
-            raise UserError("No valid sessions found to generate daily classes.")
-
+# ---------------------------
+# DAILY CLASS
+# ---------------------------
 class DailyClass(models.Model):
     _name = "edu.class.daily"
     _description = "Daily Class Schedule"
@@ -122,12 +115,7 @@ class DailyClass(models.Model):
 
     timetable_id = fields.Many2one("edu.class.timetable", string="Timetable", ondelete="cascade")
     class_id = fields.Many2one("batch.class", string="Class", required=True)
-    date = fields.Date(
-        string="Date",
-        required=True,
-        default=fields.Date.today
-    )
-
+    date = fields.Date(string="Date", required=True, default=fields.Date.today)
     teacher_id = fields.Many2one("edu.teacher", string="Teacher")
     subject_id = fields.Many2one("edu.subject", string="Subject")
     start_time = fields.Float(string="Start Time", required=True)
@@ -137,6 +125,10 @@ class DailyClass(models.Model):
     duration = fields.Float(string="Duration (hrs)", compute="_compute_duration", store=True)
     week_range = fields.Char(string="Week Range", compute="_compute_week_range")
 
+    @api.depends("start_time", "end_time")
+    def _compute_duration(self):
+        for rec in self:
+            rec.duration = rec.end_time - rec.start_time if rec.end_time > rec.start_time else 0.0
 
     @api.depends("timetable_id.week_start", "timetable_id.week_end")
     def _compute_week_range(self):
@@ -148,11 +140,6 @@ class DailyClass(models.Model):
             else:
                 rec.week_range = ""
 
-    @api.depends("start_time", "end_time")
-    def _compute_duration(self):
-        for rec in self:
-            rec.duration = rec.end_time - rec.start_time if rec.end_time > rec.start_time else 0.0
-
     @api.constrains("start_time", "end_time")
     def _check_times(self):
         for rec in self:
@@ -160,13 +147,14 @@ class DailyClass(models.Model):
                 raise ValidationError("Start time must be earlier than end time.")
 
 
-
+# ---------------------------
+# TIMETABLE LINE (DAY)
+# ---------------------------
 class TimetableLine(models.Model):
     _name = "edu.class.timetable.line"
     _description = "Class Timetable Line"
 
     timetable_id = fields.Many2one("edu.class.timetable", string="Timetable", required=True)
-
     day_name = fields.Selection([
         ("Monday", "Monday"),
         ("Tuesday", "Tuesday"),
@@ -197,26 +185,20 @@ class TimetableLine(models.Model):
                 rec.date_of_day = False
 
 
-
+# ---------------------------
+# TIMETABLE SESSION (SUBJECT)
+# ---------------------------
 class TimetableSession(models.Model):
     _name = "edu.class.timetable.session"
     _description = "Timetable Session"
 
     line_id = fields.Many2one("edu.class.timetable.line", string="Day Line", required=True)
-
     teacher_id = fields.Many2one("edu.teacher", string="Teacher")
     subject_id = fields.Many2one("edu.subject", string="Subject")
-
     start_time = fields.Float(string="Start Time", required=True)
     end_time = fields.Float(string="End Time", required=True)
-
     room = fields.Char(string="Room")
-
-    calendar_event_id = fields.Many2one(
-        "calendar.event",
-        string="Calendar Event",
-        ondelete="cascade"
-    )
+    calendar_event_id = fields.Many2one("calendar.event", string="Calendar Event", ondelete="cascade")
 
     @api.model
     def create(self, vals):
@@ -240,12 +222,28 @@ class TimetableSession(models.Model):
                     "stop": rec.end_time,
                     "partner_ids": [(6, 0, [rec.teacher_id.id])] if rec.teacher_id else False,
                 }
-
                 if rec.calendar_event_id:
                     rec.calendar_event_id.write(vals)
                 else:
                     event = self.env["calendar.event"].create(vals)
                     rec.calendar_event_id = event.id
-
-
     
+    # AUTO SYNC WHEN SESSION CREATED
+    @api.model
+    def create(self, vals):
+        rec = super().create(vals)
+        rec.timetable_line_id.timetable_id.action_sync_daily_classes()
+        return rec
+
+    # AUTO SYNC WHEN SESSION UPDATED
+    def write(self, vals):
+        res = super().write(vals)
+        for rec in self:
+            rec.timetable_line_id.timetable_id.action_sync_daily_classes()
+        return res
+
+    # AUTO SYNC IN UI ONCHANGE
+    @api.onchange('teacher_id', 'subject_id', 'start_time', 'end_time', 'room')
+    def _onchange_session_fields(self):
+        if self.timetable_line_id:
+            self.timetable_line_id.timetable_id.action_sync_daily_classes()

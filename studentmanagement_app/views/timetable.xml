@@ -14,6 +14,11 @@
             string="Add Daily Subjects"
             class="oe_highlight"
             icon="fa-plus"/>
+            <button name="action_sync_daily_classes"
+        type="object"
+        string="Sync Daily Classes"
+        class="btn-primary"
+        icon="fa-refresh"/>
                   
                 </header>
                 <sheet>

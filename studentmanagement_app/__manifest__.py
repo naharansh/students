@@ -29,8 +29,8 @@
         'views/teacher.xml',
         'views/daily_record.xml',
         'views/attendence.xml',
-        
         'views/menu.xml',
+          
         'views/templates.xml',
         'views/reports.xml',
         

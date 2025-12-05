@@ -1,39 +1,68 @@
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Root menu -->
-    <menuitem id="menu_edu_root" name="Education Management"/>
-    <!-- Classes -->
-    <menuitem id="menu_batch_class" parent="menu_edu_root"
-              action="action_batch_class" name="Classes / Batches"/>
+
+    <!-- Root Menu -->
+    <menuitem id="studentmanagement_app.menu_edu_root" name="Education Management" sequence="1"/>
+
     <!-- Students -->
-    <menuitem id="menu_students" parent="menu_edu_root"
-              action="action_students" name="Students"/>
-    <!-- Timetable -->
+    <menuitem id="studentmanagement_app.menu_students"
+              parent="studentmanagement_app.menu_edu_root"
+              action="studentmanagement_app.action_students"
+              name="Students"/>
+
+    <!-- Classes -->
+    <menuitem id="studentmanagement_app.menu_batch_class"
+              parent="studentmanagement_app.menu_edu_root"
+              action="studentmanagement_app.action_batch_class"
+              name="Classes / Batches"/>
+
+    <!-- Teachers -->
+    <menuitem id="studentmanagement_app.menu_teacher"
+              parent="studentmanagement_app.menu_edu_root"
+              action="studentmanagement_app.action_teacher"
+              name="Teachers"/>
+
+    <!-- Daily Records -->
+    <menuitem id="studentmanagement_app.menu_daily_record"
+              parent="studentmanagement_app.menu_edu_root"
+              action="studentmanagement_app.action_daily_record"
+              name="Daily Records"/>
+
+    <!-- Attendance -->
+    <menuitem id="studentmanagement_app.menu_monthly_attendance"
+              parent="studentmanagement_app.menu_edu_root"
+              action="studentmanagement_app.action_monthly_attendance"
+              name="Monthly Attendance"/>
+
+    <!-- Timetable Root -->
+    <menuitem id="studentmanagement_app.menu_timetable_root"
+              parent="studentmanagement_app.menu_edu_root"
+              name="Timetable"/>
+
+    <menuitem id="studentmanagement_app.menu_class_timetable"
+              parent="studentmanagement_app.menu_timetable_root"
+              name="Weekly Timetable"
+              action="studentmanagement_app.action_class_timetable"/>
+  <!-- <menuitem id="menu_fee_root"
+          name="Fees Accounts"
+          sequence="10"/>
+
+<menuitem id="menu_student_fees"
+          name="Monthly Fees"
+          parent="menu_fee_root"
+          action="action_student_fees"
+          sequence="20"/>
+
+<menuitem id="menu_fee_due"
+          name="Monthly Fee Dues"
+          parent="menu_fee_root"
+          action="action_fee_due"
+          sequence="30"/>
+
+<menuitem id="menu_fee_payment"
+          name="Fee Payments"
+          parent="menu_fee_root"
+          action="action_student_fee_payment"
+          sequence="40"/> -->
 
 
-<!-- TIMETABLE MAIN MENU -->
-<menuitem id="menu_timetable_root"
-          parent="menu_edu_root"
-          name="Timetable"
-          sequence="4" action=""/>
-
-<!-- CHILD MENU -->
-<menuitem id="menu_class_timetable"
-          parent="menu_timetable_root"
-          name="Weekly Timetable"
-          action="action_class_timetable"
-          sequence="1"/>
-
-    <menuitem id="menu_teacher" name="Teachers" parent="menu_studentmanagement_root" action="action_teacher"/>
-    <menuitem id="menu_daily_class_root"
-              parent="menu_edu_root"
-              name="Class Records"/>
-    <menuitem id="menu_daily_record"
-              name="Daily Records"
-              parent="menu_studentmanagement_root"
-              action="action_daily_record"/>
-    <menuitem id="menu_monthly_attendance"
-              parent="menu_edu_root"
-              name="Monthly Attendance"
-              action="action_monthly_attendance"/>
 </odoo>

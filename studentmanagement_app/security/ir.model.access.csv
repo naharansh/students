@@ -15,3 +15,6 @@ access_edu_attendence,edu.attendence,model_edu_attendence,,1,1,1,1
 access_edu_daily_record,edu.daily.record,model_edu_daily_record,,1,1,1,1
 access_edu_daily_record_line,edu.daily.record.line,model_edu_daily_record_line,,1,1,1,1
 access_edu_edu_monthly_attendence.line,edu.monthly.attendence.line,model_edu_monthly_attendence_line,,1,1,1,1
+access_edu_fee_due,edu.fee.due,model_edu_fee_due,,1,1,1,1
+access_edu_fee_payment,edu.feepayment,model_edu_feepayment,,1,1,1,1
+access_student_fees,student.fees,model_student_fees,,1,1,1,1
